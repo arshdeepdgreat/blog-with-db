@@ -20,23 +20,20 @@ app.use(express.static("public"));
 mongoose.connect("mongodb://localhost:27017/blogDB", { useNewUrlParser: true });
 
 const postSchema = {
-
   title: String,
-
   content: String
-
 };
 
 const Post = mongoose.model("Post", postSchema);
 
 
-let posts = [];
-
 app.get("/", function (req, res) {
-  res.render("home", {
-    startingContent: homeStartingContent,
-    posts: posts
-  });
+  Post.find({}, function(err, posts){
+    res.render("home", {
+      startingContent: homeStartingContent,
+      posts: posts
+      });
+  })
 });
 
 app.get("/about", function (req, res) {
@@ -56,7 +53,11 @@ app.post("/compose", function (req, res) {
     title: req.body.postTitle,
     content: req.body.postBody
   });
-  post.save();
+  post.save(function(err){
+    if (!err){
+      res.redirect("/");
+    }
+  });
   res.redirect("/");
 });
 
